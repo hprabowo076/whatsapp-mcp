@@ -472,6 +472,16 @@ func (c *Client) handleMessage(evt *events.Message) {
 
 	// Emit webhook event if manager is configured
 	if c.webhookManager != nil {
+		// Only emit for the very first message in a chat (either direction) —
+		// catches both customer-initiated and CS-initiated new conversations.
+		normalizedChatJID := c.normalizeJID(info.Chat)
+		isFirst, err := c.store.IsFirstMessageInChat(normalizedChatJID)
+		if err != nil {
+			c.log.Errorf("Failed to check first-message status for chat %s: %v", normalizedChatJID, err)
+		} else if !isFirst {
+			return
+		}
+
 		// Get chat names for context
 		chatPushName, chatContactName := c.getChatInfo(ctx, data.ChatJID, data.IsGroup, data.PushName)
 
