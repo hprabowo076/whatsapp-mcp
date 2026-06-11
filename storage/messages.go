@@ -28,6 +28,16 @@ type ReferralInfo struct {
 	Headline   string `json:"headline,omitempty"`
 }
 
+// ReferralInfo holds Click-to-WhatsApp (CTWA) ad referral metadata extracted from
+// ExternalAdReply ContextInfo. It is not persisted to the database.
+type ReferralInfo struct {
+	CtwaClid   string `json:"ctwa_clid,omitempty"`
+	SourceID   string `json:"source_id,omitempty"`
+	SourceType string `json:"source_type,omitempty"`
+	SourceURL  string `json:"source_url,omitempty"`
+	Headline   string `json:"headline,omitempty"`
+}
+
 // MessageWithNames represents a message with sender and chat names from the database view.
 type MessageWithNames struct {
 	Message
@@ -344,6 +354,21 @@ func (s *MessageStore) scanMessages(rows *sql.Rows) ([]Message, error) {
 	}
 
 	return messages, rows.Err()
+}
+
+// IsFirstMessageInChat returns true when the given chat has exactly one
+// message stored (either direction) — meaning this is the very first
+// interaction with that number. Used to gate webhook delivery to new chats only.
+func (s *MessageStore) IsFirstMessageInChat(chatJID string) (bool, error) {
+	var count int
+	err := s.db.QueryRow(
+		"SELECT COUNT(*) FROM messages WHERE chat_jid = ?",
+		chatJID,
+	).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }
 
 // SearchMessagesWithNamesFiltered searches messages with pattern matching and sender filtering.
