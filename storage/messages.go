@@ -29,16 +29,6 @@ type ReferralInfo struct {
 	Headline   string `json:"headline,omitempty"`
 }
 
-// ReferralInfo holds Click-to-WhatsApp (CTWA) ad referral metadata extracted from
-// ExternalAdReply ContextInfo. It is not persisted to the database.
-type ReferralInfo struct {
-	CtwaClid   string `json:"ctwa_clid,omitempty"`
-	SourceID   string `json:"source_id,omitempty"`
-	SourceType string `json:"source_type,omitempty"`
-	SourceURL  string `json:"source_url,omitempty"`
-	Headline   string `json:"headline,omitempty"`
-}
-
 // MessageWithNames represents a message with sender and chat names from the database view.
 type MessageWithNames struct {
 	Message
