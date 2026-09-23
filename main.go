@@ -198,6 +198,11 @@ func main() {
 	streamableServer := server.NewStreamableHTTPServer(
 		mcpServer.GetServer(),
 		server.WithEndpointPath("/mcp"),
+		// Every initialize registers a session that nothing removes: our clients
+		// (n8n FU sync, daily-cs-report.sh, bani-app waha.ts) open one per call and
+		// never DELETE. That grew 8082 to ~300 MB in 12 days. The sweeper frees
+		// idle sessions; a client that reuses a swept ID gets a fresh ephemeral one.
+		server.WithSessionIdleTTL(10*time.Minute),
 	)
 
 	// MCP endpoint. Authenticates via either an "Authorization: Bearer <key>"
@@ -295,6 +300,8 @@ func main() {
 	if err := httpServer.Shutdown(ctx); err != nil {
 		log.Printf("HTTP server shutdown error: %v", err)
 	}
+	// stops the session sweeper; httpServer above is ours, so this closes no listener
+	_ = streamableServer.Shutdown(ctx)
 
 	// stop webhook manager
 	webhookManager.Stop()
