@@ -71,6 +71,7 @@ This server implements the full MCP specification with:
 | `download_media` | Retry media downloads | One message or a pending batch |
 | `load_more_messages` | Fetch older history | On-demand from servers |
 | `get_my_info` | Get your profile info | JID, name, status, picture |
+| `check_numbers` | Check numbers are on WhatsApp | Up to 50 per call, read-only |
 | `create_community` | Create a community | Returns the new community JID |
 | `create_community_group` | Create a community group | Links it to its parent community |
 | `list_community_groups` | List community groups | Returns linked sub-groups |
